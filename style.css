@@ -1,0 +1,22 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+
+#output {
+  color: red
+}
+
+section {
+  display: block;
+  color: green;
+}
+sub-section {
+  display: block;
+  color: blue;
+}
+
+header {
+  display: block;
+  color: orange;
+}

@@ -1,0 +1,14 @@
+<article> The Article
+<section> First Section
+text
+</section>
+<section> Second Section
+text <aside this is a note> more text
+<sub-section> Sub section
+text
+<section> Third Section
+text
+<sub-section> Sub section of another section
+text <cite some stuff here>
+<sub-section> Another sub section
+more text
