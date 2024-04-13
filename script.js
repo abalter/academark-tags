@@ -32,7 +32,6 @@ function wrapTextWithTitleTag(text) {
   });
 }
 
-
 // Define the hierarchy of tags
 const tagHierarchy = ['article', 'section', 'sub-section', 'sub-sub-section', 'sub-sub-sub-section'];
 
@@ -87,7 +86,6 @@ function unnestHierarchy(my_document) {
   return (my_document)
 }
 
-
 function processText(inputHTML) {
   console.log("processText");
   console.log("inputHTML:\n" + inputHTML);
@@ -111,8 +109,72 @@ function processText(inputHTML) {
   return (unnested_html);
 }
 
+function wrapAndNestSections(htmlString) {
+  //https://chat.openai.com/share/2edc1272-d42c-4de9-967f-d5430b8ef194
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const body = doc.body;
+
+  // Helper to create section elements based on heading levels
+  function createWrapper(level) {
+      switch (level) {
+          case 1: return document.createElement('article');
+          case 2: return document.createElement('section');
+          case 3: return document.createElement('sub-section');
+          case 4: return document.createElement('sub-sub-section');
+          default: return document.createElement('div'); // Fallback for deeper levels
+      }
+  }
+
+  // Stack to manage nesting of sections
+  let stack = [];
+
+  // Traverse all nodes in the body
+  Array.from(body.childNodes).forEach(node => {
+      if (node.nodeType === Node.ELEMENT_NODE && /^H[1-6]$/.test(node.tagName)) {
+          const level = parseInt(node.tagName.substring(1), 10);
+          // Close higher or same level sections
+          while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+              stack.pop();
+          }
+
+          // Create a new wrapper for the current heading
+          const wrapper = createWrapper(level);
+          if (stack.length > 0) {
+              // Append to the last section on the stack
+              stack[stack.length - 1].wrapper.appendChild(wrapper);
+          } else {
+              // Or directly to the body if stack is empty
+              body.appendChild(wrapper);
+          }
+
+          // Push the new section onto the stack
+          stack.push({ level: level, wrapper: wrapper });
+      }
+
+      // Append current node to the last section in the stack
+      if (stack.length > 0) {
+          stack[stack.length - 1].wrapper.appendChild(node);
+      }
+  });
+
+  // Return the modified HTML
+  return body.innerHTML;
+}
+
 fetch('text.txt')
   .then(_ => _.text())
   .then(_ => processText(_))
   .then(_ => document.body.innerHTML = _);
+
+// wrapHeadingsWithTags
+// findTagIndex
+// unnestElement
+// wrapAndNestSections
+
+// Process as text
+//   - autocloseHTMLTags
+// Process as parsed HTML
+//   - wrapAndNestSections
+// 
 
